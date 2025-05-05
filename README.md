@@ -13,3 +13,16 @@ openssl req -x509 -newkey rsa:4096 -nodes -keyout cert/server.key -out cert/serv
 ```
 openssl req -x509 -nodes -newkey rsa:4096 -keyout cert/server.key -out cert/server.crt -days 365 -config cert/san.cnf -extensions req_ext
 ```
+
+## Architecture 
+
+```css
+[ Source System ]
+     │
+     ▼
+[ Kafka Topic ]
+     │
+     ▼
+[ Go Worker Service ]  →  [ gRPC Destination Service ] → [ Database ]
+
+```
