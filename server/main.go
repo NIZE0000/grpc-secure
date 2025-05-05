@@ -41,7 +41,7 @@ func authInterceptor(
 }
 
 func main() {
-	cert, err := tls.LoadX509KeyPair("../cert/server.crt", "../cert/server.key")
+	cert, err := tls.LoadX509KeyPair("cert/server.crt", "cert/server.key")
 	if err != nil {
 		log.Fatalf("failed to load certs: %v", err)
 	}
