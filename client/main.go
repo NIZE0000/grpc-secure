@@ -20,7 +20,7 @@ func main() {
 	if err != nil {
 		log.Printf("Warning: Failed to read CA cert, falling back to system RootCAs: %v", err)
 	} else {
-		certPool := x509.NewCertPool()
+		certPool := x509.NewCertPool() // ← This redeclares a new certPool, shadowing the outer one!
 		if !certPool.AppendCertsFromPEM(cert) {
 			log.Println("Warning: Failed to parse CA certificate, using system RootCAs")
 		}
