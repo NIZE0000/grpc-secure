@@ -15,20 +15,27 @@ import (
 )
 
 func main() {
+	// sckip tls layer
+	// creds := credentials.NewTLS(&tls.Config{
+	// 	InsecureSkipVerify: true, // for testing only
+	// })
+
+	// creds := credentials.NewTLS(&tls.Config{
+	// 	InsecureSkipVerify: true, // for testing only
+	// })
+
+	// use tls layer
 	certPool := x509.NewCertPool()
 	cert, err := os.ReadFile("cert/ca-cert.pem")
 	if err != nil {
-		log.Printf("Warning: Failed to read CA cert, falling back to system RootCAs: %v", err)
-	} else {
-		certPool := x509.NewCertPool() // ← This redeclares a new certPool, shadowing the outer one!
-		if !certPool.AppendCertsFromPEM(cert) {
-			log.Println("Warning: Failed to parse CA certificate, using system RootCAs")
-		}
+		log.Fatalf("Failed to read CA cert: %v", err)
 	}
+	certPool.AppendCertsFromPEM(cert)
 
 	creds := credentials.NewTLS(&tls.Config{
 		RootCAs: certPool, // Validate the server's cert properly
 	})
+
 	conn, err := grpc.Dial("localhost:50051", grpc.WithTransportCredentials(creds))
 	if err != nil {
 		log.Fatalf("failed to connect: %v", err)
