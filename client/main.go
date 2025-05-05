@@ -3,7 +3,9 @@ package main
 import (
 	"context"
 	"crypto/tls"
+	"crypto/x509"
 	"log"
+	"os"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -13,10 +15,20 @@ import (
 )
 
 func main() {
-	creds := credentials.NewTLS(&tls.Config{
-		InsecureSkipVerify: true, // for testing only
-	})
+	certPool := x509.NewCertPool()
+	cert, err := os.ReadFile("cert/ca-cert.pem")
+	if err != nil {
+		log.Printf("Warning: Failed to read CA cert, falling back to system RootCAs: %v", err)
+	} else {
+		certPool := x509.NewCertPool()
+		if !certPool.AppendCertsFromPEM(cert) {
+			log.Println("Warning: Failed to parse CA certificate, using system RootCAs")
+		}
+	}
 
+	creds := credentials.NewTLS(&tls.Config{
+		RootCAs: certPool, // Validate the server's cert properly
+	})
 	conn, err := grpc.Dial("localhost:50051", grpc.WithTransportCredentials(creds))
 	if err != nil {
 		log.Fatalf("failed to connect: %v", err)
